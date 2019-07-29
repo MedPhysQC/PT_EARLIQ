@@ -1,0 +1,74 @@
+{
+    "actions": {
+        "acqdatetime": {
+            "filters": {}, 
+            "params": {}
+        }, 
+        "earliq": {
+            "filters": {}, 
+            "params": {
+                "spheres_ml": "26.42, 11.49, 5.57, 2.57, 1.15, 0.52", 
+                "lung_ml": "194",
+		"torso_empty_ml":"9700"
+            }
+        }
+    },
+    "manual_input": {
+	"dose_bg": {
+            "desc": "activiteit bg",
+            "type": "float",
+            "val": ""
+        },
+        "dose_bg_datetime": {
+            "desc": "activiteit bg calibr datetime",
+            "type": "datetime"
+        },
+        "residual_dose_bg": {
+            "desc": "restactiviteit bg",
+            "type": "float",
+            "val": ""
+        },
+        "residual_dose_bg_datetime": {
+            "desc": "restactiviteit bg calibr datetime",
+            "type": "datetime"
+        },
+        "dose_spheres": {
+            "desc": "activiteit stockoplossing",
+            "type": "float",
+            "val": ""
+        },
+        "dose_spheres_datetime": {
+            "desc": "restactiviteit bg calibr datetime",
+            "type": "datetime"
+        },
+        "residual_dose_spheres": {
+            "desc": "activiteit stockoplossing",
+            "type": "float",
+            "val": ""
+        },
+        "residual_dose_spheres_datetime": {
+            "desc": "restactiviteit bg calibr datetime",
+            "type": "datetime"
+        }
+    },
+    "cfgformat": "20180910", 
+    "comments": {
+        "author": "Dennis", 
+        "creator": "generate_config_json.py version 20180912", 
+        "description": "Analysis of EARLIQ phantom", 
+        "version": "20161219"
+    }, 
+    "info": {
+        "acqdatetime": {
+            "params": {}
+        }, 
+        "header_series": {
+            "params": {}
+        }, 
+        "iq_analysis": {
+            "params": {
+                "art_borderpx_lrtb": "skip this number of pixels in artefact evaluation for left, right, top, bottom of image"
+            }
+        }
+    }
+}
