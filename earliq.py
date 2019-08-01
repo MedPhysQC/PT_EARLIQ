@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -48,7 +47,12 @@ from scipy.ndimage.interpolation import rotate
 from PIL import Image
 from skimage.filters import threshold_otsu
 
-'''
+import matplotlib
+#matplotlib.use('tkagg') # Force matplotlib to not use any Xwindows backend.
+matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend.
+import matplotlib.pyplot as plt
+
+
 if not 'MPLCONFIGDIR' in os.environ:
     import pkg_resources
     try:
@@ -58,12 +62,7 @@ if not 'MPLCONFIGDIR' in os.environ:
             os.environ['MPLCONFIGDIR'] = "/tmp/.matplotlib" # if this folder already exists it must be accessible by the owner of WAD_Processor 
     except:
         os.environ['MPLCONFIGDIR'] = "/tmp/.matplotlib" # if this folder already exists it must be accessible by the owner of WAD_Processor 
-'''
 
-import matplotlib
-matplotlib.use('tkagg') # Force matplotlib to not use any Xwindows backend.
-#matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend.
-import matplotlib.pyplot as plt
 
 try:
     import pydicom as dicom
@@ -128,22 +127,22 @@ def earliq_analysis(data, results, action):
     background_ml = torso_empty_ml - inserts_ml
 
     ## TODO read from manual input
-    sol1_con = 413. / 800. #MBq/ml
-    bgr1_act = 396.0
+    sol1_con = 100. / 800. #MBq/ml
+    bgr1_act = 50.0
 
     fill_ratio = sol1_con / bgr1_act * background_ml
 
 
 
     # Load data
-    inputseries = data.getAllSeries()[0]
+    inputseries =   data.getAllSeries()[0]
     print(float(inputseries[0].PixelSpacing[0]))
 
-    
-    pixeldataIn = np.array([x.pixel_array for  x in inputseries])
+    dcmInfile, pixeldataIn, dicomMode = wadwrapper_lib.prepareInput(data.series_filelist[0], headers_only=False, logTag=logTag())
 
     print('-----' ,np.shape(pixeldataIn))
-    
+    plt.imshow(pixeldataIn.max(axis=0))
+    plt.show()
     ## 2. Check data format
      
     
@@ -152,9 +151,8 @@ def earliq_analysis(data, results, action):
     # This method assumes certain symmetries and straight edges in the phantom. 
 
     rotdata = pixeldataIn
-    for axis in (0,1, 2):
+    for axis in (1,2,0):
         rotdata = earllib.correctAxis(rotdata, axis, show=False)
-
 
         
     #im = Image.fromarray(rotdata.max(axis=1)[:,:45]).convert('RGB')
@@ -165,14 +163,17 @@ def earliq_analysis(data, results, action):
     
     plt.imshow(rotdata.max(axis=1)[:,:45]); plt.show()
     bgr_threshold = threshold_otsu(rotdata.max(axis=1)[:,:45])
+    
     #plt.title("ROTDATA")
-    #earllib.myPlot(rotdata.max(axis=0),  (rotdata > bgr_threshold).max(axis=0));
-    #plt.show()    
+    earllib.myPlot(rotdata.max(axis=2),  (rotdata > bgr_threshold).max(axis=2));
+    plt.show()    
 
 
     zoomfactor = 4.0
     sphere_index = earllib.getSphereIndex(pixeldataIn)
     print('sphereindex',sphere_index)
+    #sphere_index = 33
+    
     pixsize = float(inputseries[0].PixelSpacing[0])
     print('pixsize',pixsize)
     
@@ -223,6 +224,7 @@ def earliq_analysis(data, results, action):
     bgr = rotdata[z_backgr][bgrmask]
     
     bgr_mean = bgr.mean()
+    print ('background max:',bgr.max(), '\n background mean:',bgr.mean(), '\n background std:', bgr.std())
 
     SPHERE_CENTER_R = 57.2 / pixsize
     SPHERE_ANGLES = np.arange(0, 6)*2*np.pi/6.0

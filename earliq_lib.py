@@ -5,10 +5,11 @@ import matplotlib.pyplot as plt
 import scipy.misc
 
 def myPlot(image, roi=None,filename=None):
-    #plt.imshow(image, cmap='gray')
-    
+    plt.imshow(image, cmap='gray')
+    #magma_cmap = matplotlib.cm.get_cmap('magma')
     if roi is not None:
         roi_cmap = plt.cm.Reds
+        
         roi_cmap.set_under(alpha=0)
 
         plt.imshow(roi, cmap=roi_cmap, alpha=0.5, vmin=0.5);
