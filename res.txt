@@ -1,0 +1,1 @@
+[{"category": "datetime", "name": "AcquisitionDateTime", "val": "2014-05-07 17:49:49"}, {"category": "object", "name": "testdd.png", "val": "/home/wadqc/PT_EARLIQ/testdd.png.jpg"}, {"category": "float", "name": "rc", "val": "1.0"}]

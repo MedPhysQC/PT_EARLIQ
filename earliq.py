@@ -129,7 +129,6 @@ def earliq_analysis(data, results, config):
     inserts_ml = sum(spheres_ml) + lung_ml
     background_ml = torso_empty_ml - inserts_ml
 
-    half_life_secs = float(params["half_life_secs"]) #TO DO: get the halflife/radiopharmaceutical info from the dicom header -> move to manual input
     
     ## TODO read from manual input
     sol1_con = 100. / 800. #MBq/ml
@@ -139,13 +138,20 @@ def earliq_analysis(data, results, config):
 
 
 
-
-    
-
     # Load data
     inputseries =   data.getAllSeries()[0]
     print(float(inputseries[0].PixelSpacing[0]))
 
+
+    print('Radiopharmaceutical Info')
+    ris = inputseries[0].RadiopharmaceuticalInformationSequence[0]
+    half_life_secs = ris.RadionuclideHalfLife
+    isotope = ris.RadionuclideCodeSequence[0].CodeMeaning
+
+    print(isotope,half_life_secs)
+
+
+    
     dcmInfile, pixeldataIn, dicomMode = wadwrapper_lib.prepareInput(data.series_filelist[0], headers_only=False, logTag=logTag())
 
     print('-----' ,np.shape(pixeldataIn))
