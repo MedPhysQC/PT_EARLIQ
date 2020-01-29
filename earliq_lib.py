@@ -12,7 +12,7 @@ from skimage.filters import threshold_otsu
 
 import scipy.misc
 from scipy.ndimage.measurements import center_of_mass
-from scipy.ndimage.morphology import binary_dilation, binary_opening
+from scipy.ndimage.morphology import binary_dilation, binary_erosion, binary_opening
 from scipy.ndimage.filters import gaussian_filter
 from scipy.ndimage.interpolation import rotate, zoom
 from scipy.optimize import curve_fit, minimize
@@ -460,10 +460,28 @@ def analyzeLungInsert(insertdata, background, pixsize):
 '''
 
 
+def analyze_suv(data, pixsize, margin_mm, show):
+    otsu_thres = skimage.filters.threshold_otsu(data)
+    
+    mask = data > otsu_thres
+    
+    iterations = int(np.ceil(margin_mm/pixsize[1]))
+
+    new = binary_opening(mask, iterations=2, structure=np.ones((3,3,3)))
+    
+    if iterations:
+        mask = binary_erosion(mask, iterations=iterations)
+
+    if show:
+        plt.figure(figsize=(12,6))
+        plt.subplot(121); maskPlot(data.mean(axis=0), mask.max(axis=0), overlay_type='area')
+        plt.subplot(122); maskPlot(data.mean(axis=1), mask.max(axis=1), overlay_type='area')
+        plt.show()
+
+    return data[mask].mean()
 
 
-
-def analyze(data, pixsize, zoomfactor, fit_individual, show):
+def analyze_iq(data, pixsize, zoomfactor, fit_individual, show):
     data = np.copy(data)
     
     data = rotatePhantom(data, pixsize, show)
