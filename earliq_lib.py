@@ -28,6 +28,20 @@ SPHERES_MM = [10, 13, 17, 22, 28, 37]
 SPHERES_ML = [4/3.*np.pi*(0.1*d/2.)**3 for d in SPHERES_MM]
 LUNG_INSERT_RADIUS = 15
 
+def loadData(dcmfiles):
+    data = []
+    position = []
+    for fn in dcmfiles:
+        data.append(fn.pixel_array.astype(np.float64) * fn.RescaleSlope)
+        position.append(float(fn.ImagePositionPatient[2]))
+    position = np.array(position)
+    sorting = np.argsort(position)
+    position = position[sorting]
+    data = np.array(data)[sorting]
+    pixsize = [float(x) for x in fn.PixelSpacing] + [(position[-1]-position[0])/(len(position)-1)]
+
+    pixsize = np.abs(np.array(pixsize)[::-1])
+    return data, pixsize
         
         
 def maskPlot(image, roi=None, overlay_type='contour', **kwargs):

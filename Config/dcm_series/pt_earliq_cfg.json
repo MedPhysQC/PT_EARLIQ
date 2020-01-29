@@ -9,8 +9,9 @@
 	"params": {
 	    "half_life_secs":"6540",   
             "spheres_ml": "26.42, 11.49, 5.57, 2.57, 1.15, 0.52",
-            "lung_ml": "194",
-            "torso_empty_ml": "9700"
+            "phantom_bg_vol": "9700",
+            "stock_vol": "1000"
+           
       }}},
     "manual_input": {
         "dose_bg": {
