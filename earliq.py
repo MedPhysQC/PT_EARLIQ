@@ -92,14 +92,14 @@ def acqdatetime_series(data, results, action):
 
     results.addDateTime('AcquisitionDateTime', dt) 
 
-def earliq_analysis(data, results, action):
+def earliq_analysis(data, results, config):
     """
     Read selected dicomfields and write to IQC database
     Workflow:
         1. Run tests
     """
     try:
-        params = action['params']
+        params = config["actions"]["earliq"]['params']
     except KeyError:
         params = {} # Params will contain the phantom specific parameters 
 
@@ -110,22 +110,27 @@ def earliq_analysis(data, results, action):
 
 
     try:
-        manualinput = action['manual_input']
+        manualinput = config['manual_input']
     except KeyError:
         manualinput = {}
 
 
-    print('manualinput',manualinput)
+    print('manualinput:')
+
+    for key in manualinput.keys():
+        print(manualinput[key])
 
     
     ## TODO read these from config
-    spheres_ml = [26.42, 11.49, 5.57, 2.57, 1.15, 0.52]
-    lung_ml = 194
-    torso_empty_ml = 9700
+    spheres_ml =  [float(x) for x in params["spheres_ml"].split(',')]  #[26.42, 11.49, 5.57, 2.57, 1.15, 0.52]
+    lung_ml = float(params["lung_ml"]) #194
+    torso_empty_ml = float(params["torso_empty_ml"]) # 9700
 
     inserts_ml = sum(spheres_ml) + lung_ml
     background_ml = torso_empty_ml - inserts_ml
 
+    half_life_secs = float(params["half_life_secs"]) #TO DO: get the halflife/radiopharmaceutical info from the dicom header -> move to manual input
+    
     ## TODO read from manual input
     sol1_con = 100. / 800. #MBq/ml
     bgr1_act = 50.0
@@ -133,6 +138,9 @@ def earliq_analysis(data, results, action):
     fill_ratio = sol1_con / bgr1_act * background_ml
 
 
+
+
+    
 
     # Load data
     inputseries =   data.getAllSeries()[0]
@@ -312,7 +320,7 @@ if __name__ == "__main__":
             header_series(data, results, action)
         
         elif name == 'earliq':
-            earliq_analysis(data, results, action)
+            earliq_analysis(data, results, config)
 
 
     results.write()
