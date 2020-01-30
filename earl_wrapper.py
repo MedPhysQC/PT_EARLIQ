@@ -117,11 +117,8 @@ def earliq_analysis(data, results, config):
 
 
     # Load data
-    inputseries =   data.getAllSeries()[0]
-    pixelDataImn,pixsize = earllib.loadData(inputseries)
-
-
-
+    inputseries =   data.series_filelist[0]
+    pixeldataIn,pixsize = earllib.loadData(inputseries)
 
     
     
@@ -131,33 +128,33 @@ def earliq_analysis(data, results, config):
     stock_vol = float(params["stock_vol"])
 
     
-    ## Manual input parameters
+    ## Manual input parameters:8042/app/explorer.html#instance?uuid=42e9c86d-d7325651-ba3a40aa-08bf3871-1e768553
 
     #1 READ parameters
     datetimeformat = "%Y-%m-%d %H:%M:%S"
     
     print(manualinput["dose_bg"])
-    dose_bg = float(manualinput["dose_bg"])
-    dose_bg_datetime = datetime.strptime( manualinput["dose_bg_date"] +' '+ manualinput["dose_bg_time"],datetimeformat)
+    dose_bg =  20#float(manualinput["dose_bg"])
+    dose_bg_datetime = datetime.strptime('2020-01-01 00:00:00',datetimeformat) #datetime.strptime( manualinput["dose_bg_date"] +' '+ manualinput["dose_bg_time"],datetimeformat)
  
-    residual_dose_bg = float(manualinput[ "residual_dose_bg"])
-    residual_dose_bg_datetime =   datetime.strptime(manualinput["residual_dose_bg_date"] +' '+ manualinput["residual_dose_bg_time"],datetimeformat)
+    residual_dose_bg = 0# float(manualinput[ "residual_dose_bg"]["val"])
+    residual_dose_bg_datetime =   datetime.strptime('2020-01-01 00:00:00',datetimeformat) # datetime.strptime(manualinput["residual_dose_bg_date"] +' '+ manualinput["residual_dose_bg_time"],datetimeformat)
 
     
-    dose_spheres =  float(manualinput[ "dose_spheres"])
-    dose_spheres_datetime =  datetime.strptime(manualinput[ "dose_spheres_date"]+' '+manualinput[ "dose_spheres_time"] ,datetimeformat)
+    dose_spheres = 20# float(manualinput[ "dose_spheres"])
+    dose_spheres_datetime =  datetime.strptime('2020-01-01 00:00:00',datetimeformat) # datetime.strptime(manualinput[ "dose_spheres_date"]+' '+manualinput[ "dose_spheres_time"] ,datetimeformat)
 
     
-    residual_dose_spheres = float(manualinput["residual_dose_spheres"])
-    residual_dose_spheres_datetime =  datetime.strptime(manualinput[ "residual_dose_spheres_date"]+' '+manualinput[ "residual_dose_spheres_time"],datetimeformat)
+    residual_dose_spheres = 0# float(manualinput["residual_dose_spheres"])
+    residual_dose_spheres_datetime =  datetime.strptime('2020-01-01 00:00:00',datetimeformat) # datetime.strptime(manualinput[ "residual_dose_spheres_date"]+' '+manualinput[ "residual_dose_spheres_time"],datetimeformat)
 
     #2 Calculate net background and stock activities
-    print(float(inputseries[0].PixelSpacing[0]))
+    
     print('Radiopharmaceutical Info')
-    ris = inputseries[0].RadiopharmaceuticalInformationSequence[0]
-    half_life_secs = ris.RadionuclideHalfLife
-    isotope = ris.RadionuclideCodeSequence[0].CodeMeaning
-    print(isotope,half_life_secs)
+    #ris = inputseries[0].RadiopharmaceuticalInformationSequence[0]
+    half_life_secs = 6500 #ris.RadionuclideHalfLife
+    #isotope = ris.RadionuclideCodeSequence[0].CodeMeaning
+    #print(isotope,half_life_secs)
 
     tref  = dose_bg_datetime
     
@@ -167,11 +164,13 @@ def earliq_analysis(data, results, config):
     sd = earllib.Activity(dose_spheres,dose_spheres_datetime,half_life_secs)
     sr = earllib.Activity(residual_dose_spheres,residual_dose_spheres_datetime,half_life_secs)
 
-    netbg = bgd - bgr
-    netspheres = sd - sr
+    print(bgd,bgr)
     
-    sol1_con = netspheres.At(tref) / stock_vol #MBq/ml
-    bgr1_con = netbg.At(tref) / phantom_bg_vol
+    netbg = bgd.At(tref) - bgr.At(tref)
+    netspheres = sd.At(tref) - sr.At(tref)
+    
+    sol1_con = netspheres / stock_vol #MBq/ml
+    bgr1_con = netbg / phantom_bg_vol
 
     fill_ratio = sol1_con / bgr1_con
 
@@ -179,22 +178,27 @@ def earliq_analysis(data, results, config):
     
 
     
-    for fit_individual in [0, 1]:
-        show=1
-        zoomfactor = 4.
-        #fit_individual = 1
-        pixeldataIn, pixsize = loadData(dcm_folder)
+    show=1
+    zoomfactor = 4.
+    fit_individual = 0 #This determines if the spheres should be fitted individual 
         
-        bgr_mean, sphere_means = earllib.analyze_iq(pixeldataIn, pixsize, zoomfactor, fit_individual, show)
+    bgr_mean, sphere_means = earllib.analyze_iq(pixeldataIn, pixsize, zoomfactor, fit_individual, show)
         
-        RCs = sphere_means/bgr_mean/fill_ratio
-        print(RCs)
-        
-        SPHERES_MM = [10, 13, 17, 22, 28, 37]
-        SPHERES_ML = [4/3.*np.pi*(0.1*d/2.)**3 for d in SPHERES_MM]
-        plt.plot(SPHERES_ML, RCs)
-    plt.show()
+    RCs = sphere_means/bgr_mean/fill_ratio
+    print(RCs)
+
     
+    
+    SPHERES_MM = [10, 13, 17, 22, 28, 37]
+    SPHERES_ML = [4/3.*np.pi*(0.1*d/2.)**3 for d in SPHERES_MM]
+
+
+    filename = 'RCcurve.png'
+    plt.savefig(filename)
+    
+    results.addObject('RCcurve',filename)
+    
+    plt.plot(SPHERES_ML, RCs)
 
 
 

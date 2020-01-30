@@ -1,0 +1,1 @@
+[{"category": "datetime", "name": "AcquisitionDateTime", "val": "2019-11-14 17:10:27"}, {"category": "object", "name": "RCcurve", "val": "/home/wadqc/PT_EARLIQ/RCcurve.png"}, {"category": "float", "name": "rc", "val": "1.0"}]

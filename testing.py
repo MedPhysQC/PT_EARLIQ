@@ -1,5 +1,5 @@
 import os
-import pydicom as dicom
+import pydicom as dcm
 from wad_qc.modulelibs import wadwrapper_lib
 import numpy as np
 import matplotlib.pyplot as plt
