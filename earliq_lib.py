@@ -511,7 +511,7 @@ def analyze_suv(data, pixsize, margin_mm, show,savefigname):
     return data[mask].mean(),slicesuv
 
 
-def analyze_iq(data, pixsize, zoomfactor, fit_individual, show):
+def analyze_iq(data, pixsize, zoomfactor, fit_individual, show,savefigname):
     data = np.copy(data)
     
     data = rotatePhantom(data, pixsize, show)
@@ -589,6 +589,8 @@ def analyze_iq(data, pixsize, zoomfactor, fit_individual, show):
     if show:
         maskPlot(data.max(axis=1), labeled_mask.max(axis=1), vmin=0, vmax=bgr_mean+0.5*(data.max()-bgr_mean)); plt.show()
         maskPlot(data.max(axis=0), labeled_mask.max(axis=0), vmin=0, vmax=bgr_mean+0.5*(data.max()-bgr_mean)); plt.show()
+    if savefigname:
+        plt.savefig(savefigname)
     
     return bgr_mean, np.array(means)
 

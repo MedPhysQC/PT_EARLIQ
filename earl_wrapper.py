@@ -120,6 +120,7 @@ def earliq_analysis(data, results, config):
     inputseries =   data.series_filelist[0]
     pixeldataIn,pixsize = earllib.loadData(inputseries)
 
+    header = dicom.read_file(inputseries[0],stop_before_pixels=True)
     
     
     ## Phantom parameters from config
@@ -131,30 +132,33 @@ def earliq_analysis(data, results, config):
     ## Manual input parameters:8042/app/explorer.html#instance?uuid=42e9c86d-d7325651-ba3a40aa-08bf3871-1e768553
 
     #1 READ parameters
-    datetimeformat = "%Y-%m-%d %H:%M:%S"
+    datetimeformat = "%Y-%m-%dT%H:%M"
     
     print(manualinput["dose_bg"])
-    dose_bg =  20#float(manualinput["dose_bg"])
-    dose_bg_datetime = datetime.strptime('2020-01-01 00:00:00',datetimeformat) #datetime.strptime( manualinput["dose_bg_date"] +' '+ manualinput["dose_bg_time"],datetimeformat)
+    dose_bg =  float(manualinput["dose_bg"]['val'])
+    dose_bg_datetime = datetime.strptime( manualinput["dose_bg_datetime"]['val'],datetimeformat)
  
-    residual_dose_bg = 0# float(manualinput[ "residual_dose_bg"]["val"])
-    residual_dose_bg_datetime =   datetime.strptime('2020-01-01 00:00:00',datetimeformat) # datetime.strptime(manualinput["residual_dose_bg_date"] +' '+ manualinput["residual_dose_bg_time"],datetimeformat)
+    residual_dose_bg = float(manualinput[ "residual_dose_bg"]["val"])
+    residual_dose_bg_datetime =  datetime.strptime(manualinput["residual_dose_bg_datetime"]['val'],datetimeformat)
 
     
-    dose_spheres = 20# float(manualinput[ "dose_spheres"])
-    dose_spheres_datetime =  datetime.strptime('2020-01-01 00:00:00',datetimeformat) # datetime.strptime(manualinput[ "dose_spheres_date"]+' '+manualinput[ "dose_spheres_time"] ,datetimeformat)
+    dose_spheres = float(manualinput[ "dose_spheres"]['val'])
+    dose_spheres_datetime = datetime.strptime(manualinput[ "dose_spheres_datetime"]['val'] ,datetimeformat)
 
     
-    residual_dose_spheres = 0# float(manualinput["residual_dose_spheres"])
-    residual_dose_spheres_datetime =  datetime.strptime('2020-01-01 00:00:00',datetimeformat) # datetime.strptime(manualinput[ "residual_dose_spheres_date"]+' '+manualinput[ "residual_dose_spheres_time"],datetimeformat)
+    residual_dose_spheres = float(manualinput["residual_dose_spheres"]['val'])
+    residual_dose_spheres_datetime =  datetime.strptime(manualinput[ "residual_dose_spheres_datetime"]['val'],datetimeformat)
 
     #2 Calculate net background and stock activities
     
     print('Radiopharmaceutical Info')
-    #ris = inputseries[0].RadiopharmaceuticalInformationSequence[0]
-    half_life_secs = 6500 #ris.RadionuclideHalfLife
-    #isotope = ris.RadionuclideCodeSequence[0].CodeMeaning
-    #print(isotope,half_life_secs)
+
+    ris = header.RadiopharmaceuticalInformationSequence[0]
+    half_life_secs = ris.RadionuclideHalfLife
+    isotope = ris.RadionuclideCodeSequence[0].CodeMeaning
+
+    results.addString('Isotope',isotope)
+    results.addFloat('Half life',half_life_secs)
 
     tref  = dose_bg_datetime
     
@@ -164,8 +168,6 @@ def earliq_analysis(data, results, config):
     sd = earllib.Activity(dose_spheres,dose_spheres_datetime,half_life_secs)
     sr = earllib.Activity(residual_dose_spheres,residual_dose_spheres_datetime,half_life_secs)
 
-    print(bgd,bgr)
-    
     netbg = bgd.At(tref) - bgr.At(tref)
     netspheres = sd.At(tref) - sr.At(tref)
     
@@ -182,32 +184,23 @@ def earliq_analysis(data, results, config):
     zoomfactor = 4.
     fit_individual = 0 #This determines if the spheres should be fitted individual 
         
-    bgr_mean, sphere_means = earllib.analyze_iq(pixeldataIn, pixsize, zoomfactor, fit_individual, show)
+    bgr_mean, sphere_means = earllib.analyze_iq(pixeldataIn, pixsize, zoomfactor, fit_individual, show,'sphere registration')
         
     RCs = sphere_means/bgr_mean/fill_ratio
-    print(RCs)
-
-    
-    
     SPHERES_MM = [10, 13, 17, 22, 28, 37]
     SPHERES_ML = [4/3.*np.pi*(0.1*d/2.)**3 for d in SPHERES_MM]
 
+    for i in range(6):
+        results.addFloat('Sphere '+str(SPHERES_MM[i])+' mm',RCs[i])
 
-    filename = 'RCcurve.png'
-    plt.plot(SPHERES_ML, RCs)
-
-    plt.savefig(filename)
     
+    filename = 'RCcurve.png'
+    plt.figure(figsize=(12,6))    
+    plt.plot(SPHERES_MM, RCs, color='green', linestyle='dashed', linewidth = 3, 
+         marker='o', markerfacecolor='blue', markersize=12) 
+    plt.savefig(filename)
     results.addObject('RCcurve',filename)
     
-
-
-    
-    ##  Add results to'result' object
-    varname = 'pluginversion'
-    #results.addString(varname, varval)
-    
-    results.addFloat('rc',1.0)
 
 
 
