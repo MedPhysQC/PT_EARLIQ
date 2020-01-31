@@ -194,21 +194,14 @@ def earliq_analysis(data, results, config):
 
 
     filename = 'RCcurve.png'
+    plt.plot(SPHERES_ML, RCs)
+
     plt.savefig(filename)
     
     results.addObject('RCcurve',filename)
     
-    plt.plot(SPHERES_ML, RCs)
 
 
-
-
-
-
-
-
-
-    
     
     ##  Add results to'result' object
     varname = 'pluginversion'
@@ -217,6 +210,118 @@ def earliq_analysis(data, results, config):
     results.addFloat('rc',1.0)
 
 
+
+
+
+def earlsuv_analysis(data, results, config):
+    """
+    Read selected dicomfields and write to IQC database
+    Workflow:
+        1. Run tests
+    """
+    try:
+        params = config["actions"]["earlsuv"]['params']
+    except KeyError:
+        params = {} # Params will contain the phantom specific parameters 
+
+    try:
+        info = params.find("info").text
+    except AttributeError:
+        info = 'qc' # selected subset of DICOM headers informative for QC testing
+
+
+    try:
+        manualinput = config['manual_input']
+    except KeyError:
+        manualinput = {}
+
+
+    # Load data
+    inputseries =   data.series_filelist[0]
+    pixeldataIn,pixsize = earllib.loadData(inputseries)
+
+    header = dicom.read_file(inputseries[0],stop_before_pixels=True)
+
+    studydate = str(header.StudyDate)
+    studytime = str(header.StudyTime)
+
+    scan_datetime = datetime.strptime(studydate+studytime,"%Y%m%d%H%M%S")
+    
+    if header.Units != 'BQML':
+        raise ValueError('A very specific bad thing happened: units are not BQML!')
+    
+    ## Phantom parameters from config
+    phantom_vol = float(params["phantom_vol"]) # 9700
+    results.addFloat('PhantomVolume',phantom_vol)
+    
+    
+    ## Manual input parameters:8042/app/explorer.html#instance?uuid=42e9c86d-d7325651-ba3a40aa-08bf3871-1e768553
+
+    #1 READ parameters
+    datetimeformat = "%Y-%m-%dT%H:%M"
+    
+    print(manualinput)
+    dose_bg =  float(manualinput["dose_bg"]["val"])
+    #dose_bg = 71.0
+    dose_bg_datetime =  datetime.strptime( manualinput["dose_bg_datetime"]["val"],datetimeformat)
+    #dose_bg_datetime = datetime.strptime('2019-11-14T16:30',datetimeformat)
+    residual_dose_bg =  float(manualinput[ "residual_dose_bg"]["val"])
+    #residual_dose_bg = 0.0
+    residual_dose_bg_datetime =  datetime.strptime(manualinput["residual_dose_bg_datetime"]["val"],datetimeformat)
+    #residual_dose_bg = datetime.strptime('2019-11-14T16:44',datetimeformat) 
+    
+
+    results.addFloat('Phantom dose',dose_bg)
+    results.addDateTime('Phantom dose DateTime', dose_bg_datetime) 
+
+    results.addFloat('Residual dose',residual_dose_bg)
+    results.addDateTime('Residual dose DateTime', residual_dose_bg_datetime) 
+
+    
+    #2 Calculate net background and stock activities
+    
+    print('Radiopharmaceutical Info')
+    ris = header.RadiopharmaceuticalInformationSequence[0]
+    half_life_secs = ris.RadionuclideHalfLife
+    isotope = ris.RadionuclideCodeSequence[0].CodeMeaning
+
+    results.addString('Isotope',isotope)
+    results.addFloat('Half life',half_life_secs)
+
+    tref  = dose_bg_datetime
+    
+    bgd = earllib.Activity(dose_bg,scan_datetime,half_life_secs)
+    bgr = earllib.Activity(residual_dose_bg,scan_datetime,half_life_secs)
+
+    netbg = bgd.At(tref) - bgr.At(tref)
+    admincon = netbg / phantom_vol   #MBQ/ml 
+
+    
+    show=0
+    marginmm = 1.
+    results.addFloat('Margin',marginmm)
+
+    filename = 'SUVfit.png'
+
+    measuredmean,slicesuvlist = earllib.analyze_suv(pixeldataIn, pixsize, marginmm, show,filename)
+    measuredmean = measuredmean/np.power(10,6) #Divide by 10^6 to get Bq/ml
+
+    results.addObject('SUV mask',filename)
+
+    plt.figure(figsize=(12,6))
+    plt.plot(slicesuvlist)
+    plt.savefig('SUVslice.png')
+    results.addObject('SUV/slice','SUVslice.png')
+    
+    results.addFloat('Administered concentration',admincon)
+    results.addFloat('Measured concentration',admincon)
+    results.addFloat('SUV',measuredmean/admincon)
+
+    
+      
+
+
+    
 
 if __name__ == "__main__":
     data, results, config = pyWADinput()

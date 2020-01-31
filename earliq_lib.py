@@ -48,7 +48,7 @@ def loadData(dcmfiles):
     return data, pixsize
         
         
-def maskPlot(image, roi=None, overlay_type='contour', **kwargs):
+def maskPlot(image, roi=None, overlay_type='contour', savefigname=None,**kwargs):
     plt.imshow(image, cmap='gray', interpolation='nearest', **kwargs)
 
     if roi is not None:
@@ -58,8 +58,9 @@ def maskPlot(image, roi=None, overlay_type='contour', **kwargs):
             roi_cmap = plt.cm.jet
             roi_cmap.set_under(alpha=0)
             plt.imshow(roi, cmap=roi_cmap, alpha=0.5, vmin=0.5, interpolation='nearest')
-    
-
+        if savefigname is not None:
+            plt.savefig(savefigname)
+                
 class Activity(object):
     def __init__(self, activity, time, halflife_seconds):
         self.A = activity
@@ -479,7 +480,8 @@ def analyzeLungInsert(insertdata, background, pixsize):
 '''
 
 
-def analyze_suv(data, pixsize, margin_mm, show):
+def analyze_suv(data, pixsize, margin_mm, show,savefigname):
+    data = np.copy(data)
     otsu_thres = skimage.filters.threshold_otsu(data)
     
     mask = data > otsu_thres
@@ -491,13 +493,22 @@ def analyze_suv(data, pixsize, margin_mm, show):
     if iterations:
         mask = binary_erosion(mask, iterations=iterations)
 
+    plt.figure(figsize=(12,6))
+    plt.subplot(121); maskPlot(data.mean(axis=0), mask.max(axis=0), overlay_type='area')
+    plt.subplot(122); maskPlot(data.mean(axis=1), mask.max(axis=1), overlay_type='area')
+        
     if show:
-        plt.figure(figsize=(12,6))
-        plt.subplot(121); maskPlot(data.mean(axis=0), mask.max(axis=0), overlay_type='area')
-        plt.subplot(122); maskPlot(data.mean(axis=1), mask.max(axis=1), overlay_type='area')
         plt.show()
+    if savefigname:
+        plt.savefig(savefigname)
 
-    return data[mask].mean()
+    slicesuv = []
+    for z in range(len(data)):
+        tmpsuv = data[z,:,:][mask[z,:,:]].mean()
+        if tmpsuv > 0:
+            slicesuv.append(tmpsuv)
+
+    return data[mask].mean(),slicesuv
 
 
 def analyze_iq(data, pixsize, zoomfactor, fit_individual, show):
