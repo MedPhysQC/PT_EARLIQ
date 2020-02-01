@@ -503,12 +503,16 @@ def analyze_suv(data, pixsize, margin_mm, show,savefigname):
         plt.savefig(savefigname)
 
     slicesuv = []
+    slicedev = []
+    
     for z in range(len(data)):
         tmpsuv = data[z,:,:][mask[z,:,:]].mean()
+        tmpdev = data[z,:,:][mask[z,:,:]].std()
         if tmpsuv > 0:
             slicesuv.append(tmpsuv)
-
-    return data[mask].mean(),slicesuv
+            slicedev.append(tmpdev)
+            
+    return data[mask].mean(),slicesuv,slicedev
 
 
 def analyze_iq(data, pixsize, zoomfactor, fit_individual, show,savefigname):

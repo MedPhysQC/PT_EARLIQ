@@ -190,14 +190,31 @@ def earliq_analysis(data, results, config):
     SPHERES_MM = [10, 13, 17, 22, 28, 37]
     SPHERES_ML = [4/3.*np.pi*(0.1*d/2.)**3 for d in SPHERES_MM]
 
+    EARL_RC_MIN_VOIA50 = [0.27,0.44,0.57,0.63,0.72,0.76]
+    EARL_RC_MAX_VOIA50 = [0.43,0.60,0.73,0.78,0.85,0.89]
+
+    
     for i in range(6):
         results.addFloat('Sphere '+str(SPHERES_MM[i])+' mm',RCs[i])
 
     
     filename = 'RCcurve.png'
-    plt.figure(figsize=(12,6))    
+    plt.figure(figsize=(12,6))
+    plt.grid()
+    plt.xlabel("Sphere diameter (mm)")
+    plt.ylabel("Recovery coefficient")
+    
     plt.plot(SPHERES_MM, RCs, color='green', linestyle='dashed', linewidth = 3, 
-         marker='o', markerfacecolor='blue', markersize=12) 
+         marker='o', markerfacecolor='blue', markersize=12)
+
+    plt.plot(SPHERES_MM,EARL_RC_MAX_VOIA50 , color='black', linewidth = 3, 
+         marker='o', markerfacecolor='black', markersize=12)
+
+
+    plt.plot(SPHERES_MM,EARL_RC_MIN_VOIA50 , color='black', linewidth = 3, 
+         marker='o', markerfacecolor='black', markersize=12)
+
+    
     plt.savefig(filename)
     results.addObject('RCcurve',filename)
     
@@ -296,15 +313,26 @@ def earlsuv_analysis(data, results, config):
 
     filename = 'SUVfit.png'
 
-    measuredmean,slicesuvlist = earllib.analyze_suv(pixeldataIn, pixsize, marginmm, show,filename)
+    measuredmean,slicecountlist, slicesdevlist = earllib.analyze_suv(pixeldataIn, pixsize, marginmm, show,filename)
     measuredmean = measuredmean/np.power(10,6) #Divide by 10^6 to get Bq/ml
 
     results.addObject('SUV mask',filename)
 
     plt.figure(figsize=(12,6))
-    plt.plot(slicesuvlist)
+    plt.grid()
+    slicesuvs = [ (x/np.power(10,6))/admincon for x in slicecountlist]
+    plt.plot(slicesuvs)
     plt.savefig('SUVslice.png')
     results.addObject('SUV/slice','SUVslice.png')
+
+
+    plt.figure(figsize=(12,6))
+    plt.grid()
+    plt.plot(slicesdevlist)
+    plt.savefig('SUVstdevslice.png')
+    results.addObject('SUVstdev/slice','SUVstdevslice.png')
+
+
     
     results.addFloat('Administered concentration',admincon)
     results.addFloat('Measured concentration',admincon)
