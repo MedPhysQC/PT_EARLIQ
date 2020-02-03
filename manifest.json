@@ -5,7 +5,7 @@
     },
     "module": {
         "description": "PT EARL IQ",
-        "executable": "earliq.py",
+        "executable": "earl_wrapper.py",
         "name": "PT_EARL_IQ",
         "code": "python",
         "dependencies": [

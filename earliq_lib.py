@@ -395,6 +395,7 @@ def getSphereMask3D(shape, cz, cy, cx, rx, ry, rz):
     dz, dy, dx = shape
     z, y, x = np.ogrid[-cz:dz-cz, -cy:dy-cy, -cx:dx-cx]
     return ((x/rx)**2 + (y/ry)**2 + (z/rz)**2 <= 1)
+
 '''
 def getLungInsertMask(shape, cz, cy, cx, rx, ry):
     dz, dy, dx = shape
@@ -407,6 +408,7 @@ def recoveryCoefficient(value, background, fillratio):
     else:
         return 1 - value/background
 '''
+
 def getInsertData(image, mask, cz):
     insert3d = image[mask]
     insert2d = image[cz, mask[cz]]

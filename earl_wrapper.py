@@ -24,7 +24,7 @@
 
 from __future__ import print_function
 
-__version__ = '20190628'
+__version__ = '20200201'
 __author__ = 'rvrooij,ddickerscheid,tdwit'
 
 
@@ -205,7 +205,7 @@ def earliq_analysis(data, results, config):
     plt.ylabel("Recovery coefficient")
     
     plt.plot(SPHERES_MM, RCs, color='green', linestyle='dashed', linewidth = 3, 
-         marker='o', markerfacecolor='blue', markersize=12)
+         marker='o', markerfacecolor='bluebezig zijn', markersize=12)
 
     plt.plot(SPHERES_MM,EARL_RC_MAX_VOIA50 , color='black', linewidth = 3, 
          marker='o', markerfacecolor='black', markersize=12)
