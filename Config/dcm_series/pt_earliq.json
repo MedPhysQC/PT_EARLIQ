@@ -1,74 +1,122 @@
 {
-  "actions": {
-    "acqdatetime": {
-      "filters": {},
-	"params": {}
-                   },
-    "earliq": {
-      "filters": {},
-	"params": {
-	    "half_life_secs":"6540",   
-            "spheres_ml": "26.42, 11.49, 5.57, 2.57, 1.15, 0.52",
-            "phantom_bg_vol": "9700",
-            "stock_vol": "1000"
-           
-      }}},
+    "actions": {
+        "acqdatetime": {
+            "filters": {},
+            "params": {}
+        },
+        "earliq": {
+            "filters": {},
+            "params": {
+                "half_life_secs": "6540",
+                "spheres_ml": "26.42, 11.49, 5.57, 2.57, 1.15, 0.52",
+                "phantom_bg_vol": "9700"
+            }
+        }
+    },
     "manual_input": {
+        "acq_date": {
+            "desc": "Acquisition date (yyyy-mm-dd)",
+            "type": "date",
+            "val": "(0008,0022)",
+            "required": "true"
+        },
+        "acq_time": {
+            "desc": "Acquisition time (hh:mm:ss)",
+            "type": "time",
+            "val": "(0008,0032)",
+            "required": "true"
+        },
+        "stock_vol": {
+            "desc": "Stock volume (mL)",
+            "type": "float",
+            "val": "1000",
+            "required": "true"
+        },
         "dose_bg": {
-          "desc": "activiteit bg",
-          "type": "float",
-          "val": "0"
+            "desc": "Dose background (MBq)",
+            "type": "float",
+            "required": "true"
         },
-        "dose_bg_datetime": {
-          "desc": "activiteit bg calibr datetime",
-          "type": "datetime"
+        "dose_bg_date": {
+            "desc": "Dose background - calibration date (yyyy-mm-dd)",
+            "type": "date",
+            "val": "(0008,0022)",
+            "required": "true"
         },
-        "residual_dose_bg": {  
-          "desc": "restactiviteit bg",
-          "type": "float",
-          "val": "0"
+        "dose_bg_time": {
+            "desc": "Dose background - calibration time (hh:mm:ss)",
+            "type": "time",
+            "required": "true"
         },
-        "residual_dose_bg_datetime": {
-          "desc": "restactiviteit bg calibr datetime",
-          "type": "datetime"
+        "residual_dose_bg": {
+            "desc": "Residual dose background (MBq)",
+            "type": "float",
+            "val": "0",
+            "required": "true"
+        },
+        "residual_dose_bg_date": {
+            "desc": "Residual dose background - calibration date (yyyy-mm-dd)",
+            "type": "date",
+            "val": "(0008,0022)",
+            "required": "true"
+        },
+        "residual_dose_bg_time": {
+            "desc": "Residual dose background - calibration time (hh:mm:ss)",
+            "type": "time",
+            "required": "true"
         },
         "dose_spheres": {
-          "desc": "activiteit stockoplossing",
-          "type": "float",
-          "val": "0"
+            "desc": "Dose stock (MBq)",
+            "type": "float",
+            "required": "true"
         },
-        "dose_spheres_datetime": {
-          "desc": "restactiviteit bg calibr datetime",
-          "type": "datetime"
+        "dose_spheres_date": {
+            "desc": "Dose stock - calibration date (yyyy-mm-dd)",
+            "type": "date",
+            "val": "(0008,0022)",
+            "required": "true"
+        },
+        "dose_spheres_time": {
+            "desc": "Dose stock - calibration time (hh:mm:ss)",
+            "type": "time",
+            "required": "true"
         },
         "residual_dose_spheres": {
-          "desc": "activiteit stockoplossing",
-          "type": "float",
-          "val": "0"
+            "desc": "Residual dose stock (MBq)",
+            "type": "float",
+            "val": "0",
+            "required": "true"
         },
-        "residual_dose_spheres_datetime": {
-          "desc": "restactiviteit bg calibr datetime",
-          "type": "datetime"
+        "residual_dose_spheres_date": {
+            "desc": "Residual dose stock - calibration date (yyyy-mm-dd)",
+            "type": "date",
+            "val": "(0008,0022)",
+            "required": "true"
+        },
+        "residual_dose_spheres_time": {
+            "desc": "Residual dose stock - calibration time (hh:mm:ss)",
+            "type": "time",
+            "required": "true"
         }
-  },
-  "cfgformat": "20180910",
-  "comments": {
-    "author": "Dennis",
-    "creator": "generate_config_json.py version 20180912",
-    "description": "Analysis of EARLIQ phantom",
-    "version": "20161219"
-  },
-  "info": {
-    "acqdatetime": {
-      "params": {}
     },
-    "header_series": {
-      "params": {}
+    "cfgformat": "20180910",
+    "comments": {
+        "author": "Dennis/Tim",
+        "creator": "generate_config_json.py version 20180912",
+        "description": "Analysis of EARLIQ phantom",
+        "version": "20200502"
     },
-    "iq_analysis": {
-      "params": {
-        "art_borderpx_lrtb": "skip this number of pixels in artefact evaluation for left, right, top, bottom of image"
-      }
+    "info": {
+        "acqdatetime": {
+            "params": {}
+        },
+        "header_series": {
+            "params": {}
+        },
+        "iq_analysis": {
+            "params": {
+                "art_borderpx_lrtb": "skip this number of pixels in artefact evaluation for left, right, top, bottom of image"
+            }
+        }
     }
-  }
 }

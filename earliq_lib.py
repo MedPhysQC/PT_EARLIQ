@@ -68,7 +68,6 @@ class Activity(object):
         self.halflife = halflife_seconds
     
     def At(self, t1):
-        print(t1)
         assert isinstance(t1, datetime)
         return self.A * 0.5**((t1 - self.t).total_seconds()/self.halflife)
         
@@ -395,7 +394,6 @@ def getSphereMask3D(shape, cz, cy, cx, rx, ry, rz):
     dz, dy, dx = shape
     z, y, x = np.ogrid[-cz:dz-cz, -cy:dy-cy, -cx:dx-cx]
     return ((x/rx)**2 + (y/ry)**2 + (z/rz)**2 <= 1)
-
 '''
 def getLungInsertMask(shape, cz, cy, cx, rx, ry):
     dz, dy, dx = shape
@@ -408,7 +406,6 @@ def recoveryCoefficient(value, background, fillratio):
     else:
         return 1 - value/background
 '''
-
 def getInsertData(image, mask, cz):
     insert3d = image[mask]
     insert2d = image[cz, mask[cz]]
@@ -507,13 +504,16 @@ def analyze_suv(data, pixsize, margin_mm, show,savefigname):
     slicesuv = []
     slicedev = []
     
-    for z in range(len(data)):
-        tmpsuv = data[z,:,:][mask[z,:,:]].mean()
-        tmpdev = data[z,:,:][mask[z,:,:]].std()
-        if tmpsuv > 0:
-            slicesuv.append(tmpsuv)
-            slicedev.append(tmpdev)
-            
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        for z in range(len(data)):
+            tmpsuv = data[z,:,:][mask[z,:,:]].mean()
+            tmpdev = data[z,:,:][mask[z,:,:]].std()
+            if tmpsuv > 0:
+                slicesuv.append(tmpsuv)
+                slicedev.append(tmpdev)
+
     return data[mask].mean(),slicesuv,slicedev
 
 

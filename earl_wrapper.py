@@ -126,28 +126,31 @@ def earliq_analysis(data, results, config):
     ## Phantom parameters from config
     spheres_ml =  [float(x) for x in params["spheres_ml"].split(',')]  #[26.42, 11.49, 5.57, 2.57, 1.15, 0.52]
     phantom_bg_vol = float(params["phantom_bg_vol"]) # 9700
-    stock_vol = float(params["stock_vol"])
 
     
     ## Manual input parameters:8042/app/explorer.html#instance?uuid=42e9c86d-d7325651-ba3a40aa-08bf3871-1e768553
 
     #1 READ parameters
-    datetimeformat = "%Y-%m-%dT%H:%M"
+    stock_vol = float(manualinput["stock_vol"]['val'])
+
+    datetimeformat = "%Y-%m-%dT%H:%M:%S"
+
+    acq_datetime = datetime.strptime(manualinput['acq_date']['val']+"T"+manualinput['acq_time']['val'],datetimeformat)
     
     print(manualinput["dose_bg"])
     dose_bg =  float(manualinput["dose_bg"]['val'])
-    dose_bg_datetime = datetime.strptime( manualinput["dose_bg_datetime"]['val'],datetimeformat)
+    dose_bg_datetime = datetime.strptime( manualinput['dose_bg_date']['val']+"T"+manualinput['dose_bg_time']['val'],datetimeformat)
  
     residual_dose_bg = float(manualinput[ "residual_dose_bg"]["val"])
-    residual_dose_bg_datetime =  datetime.strptime(manualinput["residual_dose_bg_datetime"]['val'],datetimeformat)
+    residual_dose_bg_datetime =  datetime.strptime( manualinput['residual_dose_bg_date']['val']+"T"+manualinput['residual_dose_bg_time']['val'],datetimeformat)
 
     
     dose_spheres = float(manualinput[ "dose_spheres"]['val'])
-    dose_spheres_datetime = datetime.strptime(manualinput[ "dose_spheres_datetime"]['val'] ,datetimeformat)
+    dose_spheres_datetime = datetime.strptime( manualinput['dose_spheres_date']['val']+"T"+manualinput['dose_spheres_time']['val'],datetimeformat)
 
     
     residual_dose_spheres = float(manualinput["residual_dose_spheres"]['val'])
-    residual_dose_spheres_datetime =  datetime.strptime(manualinput[ "residual_dose_spheres_datetime"]['val'],datetimeformat)
+    residual_dose_spheres_datetime =  datetime.strptime( manualinput['residual_dose_spheres_date']['val']+"T"+manualinput['residual_dose_spheres_time']['val'],datetimeformat)
 
     #2 Calculate net background and stock activities
     
@@ -160,7 +163,8 @@ def earliq_analysis(data, results, config):
     results.addString('Isotope',isotope)
     results.addFloat('Half life',half_life_secs)
 
-    tref  = dose_bg_datetime
+    #tref  = dose_bg_datetime
+    tref  = acq_datetime
     
     bgd = earllib.Activity(dose_bg,dose_bg_datetime,half_life_secs)
     bgr = earllib.Activity(residual_dose_bg,residual_dose_bg_datetime,half_life_secs)
@@ -182,7 +186,7 @@ def earliq_analysis(data, results, config):
     
     show=1
     zoomfactor = 4.
-    fit_individual = 0 #This determines if the spheres should be fitted individual 
+    fit_individual = 0 #This determines if the spheres should be fitted individually 
         
     bgr_mean, sphere_means = earllib.analyze_iq(pixeldataIn, pixsize, zoomfactor, fit_individual, show,'sphere registration')
         
@@ -268,16 +272,16 @@ def earlsuv_analysis(data, results, config):
     ## Manual input parameters:8042/app/explorer.html#instance?uuid=42e9c86d-d7325651-ba3a40aa-08bf3871-1e768553
 
     #1 READ parameters
-    datetimeformat = "%Y-%m-%dT%H:%M"
+    datetimeformat = "%Y-%m-%dT%H:%M:%S"
     
     print(manualinput)
     dose_bg =  float(manualinput["dose_bg"]["val"])
     #dose_bg = 71.0
-    dose_bg_datetime =  datetime.strptime( manualinput["dose_bg_datetime"]["val"],datetimeformat)
+    dose_bg_datetime =  datetime.strptime( manualinput['dose_bg_date']['val']+"T"+manualinput['dose_bg_time']['val'],datetimeformat)
     #dose_bg_datetime = datetime.strptime('2019-11-14T16:30',datetimeformat)
     residual_dose_bg =  float(manualinput[ "residual_dose_bg"]["val"])
     #residual_dose_bg = 0.0
-    residual_dose_bg_datetime =  datetime.strptime(manualinput["residual_dose_bg_datetime"]["val"],datetimeformat)
+    residual_dose_bg_datetime =  datetime.strptime( manualinput['residual_dose_bg_date']['val']+"T"+manualinput['residual_dose_bg_time']['val'],datetimeformat)
     #residual_dose_bg = datetime.strptime('2019-11-14T16:44',datetimeformat) 
     
 

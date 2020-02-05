@@ -1,54 +1,71 @@
 {
-  "actions": {
-    "acqdatetime": {
-      "filters": {},
-	"params": {}
-                   },
-    "earlsuv": {
-      "filters": {},
-	"params": {
-	    "half_life_secs":"6540",   
-            "phantom_vol": "9293"
-           
-      }}},
+    "actions": {
+        "acqdatetime": {
+            "filters": {},
+            "params": {}
+        },
+        "earlsuv": {
+            "filters": {},
+            "params": {
+                "half_life_secs": "6540",
+                "phantom_vol": "9293"
+            }
+        }
+    },
     "manual_input": {
         "dose_bg": {
-          "desc": "activiteit bg",
-          "type": "float",
-          "val": "0"
+            "desc": "Phantom dose (MBq)",
+            "type": "float",
+            "val": "0",
+            "required" : "true"
         },
-        "dose_bg_datetime": {
-          "desc": "activiteit bg calibr datetime",
-          "type": "datetime"
+        "dose_bg_date": {
+            "desc": "Phantom dose date (yyyy-mm-dd)",
+            "type": "date",
+            "val": "(0008,0022)",
+            "required" : "true"
         },
-        "residual_dose_bg": {  
-          "desc": "restactiviteit bg",
-          "type": "float",
-          "val": "0"
+        "dose_bg_time": {
+            "desc": "Phantom dose time (hh:mm:ss)",
+            "type": "time",
+            "required" : "true"
         },
-        "residual_dose_bg_datetime": {
-          "desc": "restactiviteit bg calibr datetime",
-          "type": "datetime"
+        "residual_dose_bg": {
+            "desc": "Residual dose (MBq)",
+            "type": "float",
+            "val": "0",
+            "required" : "true"
+        },
+        "residual_dose_bg_date": {
+            "desc": "Residual dose date (yyyy-mm-dd)",
+            "type": "date",
+            "val": "(0008,0022)",
+            "required" : "true"
+        },
+        "residual_dose_bg_time": {
+            "desc": "Residual dose time (hh:mm:ss)",
+            "type": "time",
+            "required" : "true"
         }
-  },
-  "cfgformat": "20180910",
-  "comments": {
-    "author": "Dennis",
-    "creator": "generate_config_json.py version 20180912",
-    "description": "Analysis of EARLIQ phantom",
-    "version": "20161219"
-  },
-  "info": {
-    "acqdatetime": {
-      "params": {}
     },
-    "header_series": {
-      "params": {}
+    "cfgformat": "20180910",
+    "comments": {
+        "author": "Dennis/Tim",
+        "creator": "generate_config_json.py version 20180912",
+        "description": "Analysis of EARLSUV phantom",
+        "version": "20200205"
     },
-    "iq_analysis": {
-      "params": {
-        "art_borderpx_lrtb": "skip this number of pixels in artefact evaluation for left, right, top, bottom of image"
-      }
+    "info": {
+        "acqdatetime": {
+            "params": {}
+        },
+        "header_series": {
+            "params": {}
+        },
+        "iq_analysis": {
+            "params": {
+                "art_borderpx_lrtb": "skip this number of pixels in artefact evaluation for left, right, top, bottom of image"
+            }
+        }
     }
-  }
 }
