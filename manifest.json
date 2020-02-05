@@ -6,14 +6,15 @@
     "module": {
         "description": "PT EARL IQ",
         "executable": "earl_wrapper.py",
-        "name": "PT_EARL_IQ",
+        "name": "PT_EARLIQ",
         "code": "python",
         "dependencies": [
             "pillow",
             "numpy",
             "pydicom",
             "scipy",
-            "matplotlib"
+            "matplotlib",
+            "skimage"
         ]
     }
 }
