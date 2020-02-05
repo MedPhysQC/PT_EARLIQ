@@ -273,6 +273,8 @@ def earlsuv_analysis(data, results, config):
 
     #1 READ parameters
     datetimeformat = "%Y-%m-%dT%H:%M:%S"
+
+    acq_datetime = datetime.strptime(manualinput['acq_date']['val']+"T"+manualinput['acq_time']['val'],datetimeformat)
     
     print(manualinput)
     dose_bg =  float(manualinput["dose_bg"]["val"])
@@ -302,7 +304,8 @@ def earlsuv_analysis(data, results, config):
     results.addString('Isotope',isotope)
     results.addFloat('Half life',half_life_secs)
 
-    tref  = dose_bg_datetime
+    #tref  = dose_bg_datetime
+    tref = acq_datetime
     
     bgd = earllib.Activity(dose_bg,scan_datetime,half_life_secs)
     bgr = earllib.Activity(residual_dose_bg,scan_datetime,half_life_secs)
