@@ -13,6 +13,18 @@
         }
     },
     "manual_input": {
+        "acq_date": {
+            "desc": "Acquisition date (yyyy-mm-dd)",
+            "type": "date",
+            "val": "(0008,0022)",
+            "required": "true"
+        },
+        "acq_time": {
+            "desc": "Acquisition time (hh:mm:ss)",
+            "type": "time",
+            "val": "(0008,0032)",
+            "required": "true"
+        },
         "dose_bg": {
             "desc": "Phantom dose (MBq)",
             "type": "float",
