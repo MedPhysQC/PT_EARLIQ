@@ -306,6 +306,7 @@ def earlsuv_analysis(data, results, config):
     ris = header.RadiopharmaceuticalInformationSequence[0]
     half_life_secs = ris.RadionuclideHalfLife
     isotope = ris.RadionuclideCodeSequence[0].CodeMeaning
+    positron_fraction = ris.RadionuclidePositronFraction
     
     results.addString('Isotope',isotope)
     results.addFloat('Half life',half_life_secs)
@@ -336,7 +337,7 @@ def earlsuv_analysis(data, results, config):
     #bgd = earllib.Activity(dose_bg,scan_datetime,half_life_secs)
     #bgr = earllib.Activity(residual_dose_bg,scan_datetime,half_life_secs)
 
-    netbg = bgd.At(tref) - bgr.At(tref)
+    netbg = positron_fraction* bgd.At(tref) - bgr.At(tref)
     admincon = netbg / phantom_vol   #MBQ/ml 
 
     
