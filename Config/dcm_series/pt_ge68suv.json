@@ -1,0 +1,37 @@
+{
+    "actions": {
+        "acqdatetime": {
+            "filters": {},
+            "params": {}
+        },
+        "earlsuv": {
+            "filters": {},
+            "params": {
+		"ge68suv":"True",
+		"ge68activity": "97.83",
+		"calibrationdate":"20190801",
+                "phantom_vol": "8512"
+            }
+        }
+    },
+    "cfgformat": "20180910",
+    "comments": {
+        "author": "Dennis/Tim",
+        "creator": "generate_config_json.py version 20180912",
+        "description": "Analysis of EARLSUV phantom",
+        "version": "20200205"
+    },
+    "info": {
+        "acqdatetime": {
+            "params": {}
+        },
+        "header_series": {
+            "params": {}
+        },
+        "iq_analysis": {
+            "params": {
+                "art_borderpx_lrtb": "skip this number of pixels in artefact evaluation for left, right, top, bottom of image"
+            }
+        }
+    }
+}

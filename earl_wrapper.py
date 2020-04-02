@@ -105,7 +105,7 @@ def earliq_analysis(data, results, config):
         params = {} # Params will contain the phantom specific parameters 
 
     try:
-        info = params.find("info").text
+        info = params["info"]
     except AttributeError:
         info = 'qc' # selected subset of DICOM headers informative for QC testing
 
@@ -143,11 +143,9 @@ def earliq_analysis(data, results, config):
  
     residual_dose_bg = float(manualinput[ "residual_dose_bg"]["val"])
     residual_dose_bg_datetime =  datetime.strptime( manualinput['residual_dose_bg_date']['val']+"T"+manualinput['residual_dose_bg_time']['val'],datetimeformat)
-
     
     dose_spheres = float(manualinput[ "dose_spheres"]['val'])
     dose_spheres_datetime = datetime.strptime( manualinput['dose_spheres_date']['val']+"T"+manualinput['dose_spheres_time']['val'],datetimeformat)
-
     
     residual_dose_spheres = float(manualinput["residual_dose_spheres"]['val'])
     residual_dose_spheres_datetime =  datetime.strptime( manualinput['residual_dose_spheres_date']['val']+"T"+manualinput['residual_dose_spheres_time']['val'],datetimeformat)
@@ -233,29 +231,85 @@ def earlsuv_analysis(data, results, config):
     Workflow:
         1. Run tests
     """
-    try:
-        params = config["actions"]["earlsuv"]['params']
-    except KeyError:
-        params = {} # Params will contain the phantom specific parameters 
-
-    try:
-        info = params.find("info").text
-    except AttributeError:
-        info = 'qc' # selected subset of DICOM headers informative for QC testing
-
-
-    try:
-        manualinput = config['manual_input']
-    except KeyError:
-        manualinput = {}
 
 
     # Load data
     inputseries =   data.series_filelist[0]
     pixeldataIn,pixsize = earllib.loadData(inputseries)
-
     header = dicom.read_file(inputseries[0],stop_before_pixels=True)
 
+    
+    try:
+        params = config["actions"]["earlsuv"]['params']
+    except KeyError:
+        params = {} # Params will contain the phantom specific parameters 
+
+    #try:
+    #    info = params["info"] 
+    #except AttributeError:
+    #    info = 'qc' # selected subset of DICOM headers informative for QC testing
+
+    if True:
+        ge68suv = params['ge68suv']
+    #except:
+    #    ge68suv = False
+
+    print ('------',ge68suv)
+        
+    if ge68suv == 'True':
+        manualinput = {}
+        
+        datetimeformat = "%Y%m%dT%H%M%S"
+        acq_datetime = datetime.strptime(header.AcquisitionDate+"T"+header.AcquisitionTime[0:6],datetimeformat)
+    
+        dose_bg = float(params['ge68activity'])
+        dose_bg_datetime = datetime.strptime(params['calibrationdate']+"T"+"000000",datetimeformat)
+        residual_dose_bg = 0.0
+        residual_dose_bg_datetime = dose_bg_datetime
+        
+    else:    
+        try:
+            manualinput = config['manual_input']
+        except KeyError:
+            manualinput = {}
+
+
+            ## Manual input parameters:8042/app/explorer.html#instance?uuid=42e9c86d-d7325651-ba3a40aa-08bf3871-1e768553
+
+        #1 READ parameters
+        datetimeformat = "%Y-%m-%dT%H:%M:%S"
+        acq_datetime = datetime.strptime(manualinput['acq_date']['val']+"T"+manualinput['acq_time']['val'],datetimeformat)
+    
+        print(manualinput)
+    
+        dose_bg =  float(manualinput["dose_bg"]["val"])
+        #dose_bg = 71.0
+        dose_bg_datetime =  datetime.strptime( manualinput['dose_bg_date']['val']+"T"+manualinput['dose_bg_time']['val'],datetimeformat)
+        #dose_bg_datetime = datetime.strptime('2019-11-14T16:30',datetimeformat)
+        residual_dose_bg =  float(manualinput[ "residual_dose_bg"]["val"])
+        #residual_dose_bg = 0.0
+        residual_dose_bg_datetime =  datetime.strptime( manualinput['residual_dose_bg_date']['val']+"T"+manualinput['residual_dose_bg_time']['val'],datetimeformat)
+        #residual_dose_bg = datetime.strptime('2019-11-14T16:44',datetimeformat) 
+    
+
+        results.addFloat('Phantom dose',dose_bg)
+        results.addDateTime('Phantom dose DateTime', dose_bg_datetime) 
+
+        results.addFloat('Residual dose',residual_dose_bg)
+        results.addDateTime('Residual dose DateTime', residual_dose_bg_datetime) 
+
+    
+
+    #2 Calculate net background and stock activities
+        
+    print('Radiopharmaceutical Info')
+    ris = header.RadiopharmaceuticalInformationSequence[0]
+    half_life_secs = ris.RadionuclideHalfLife
+    isotope = ris.RadionuclideCodeSequence[0].CodeMeaning
+    
+    results.addString('Isotope',isotope)
+    results.addFloat('Half life',half_life_secs)
+    
     studydate = str(header.StudyDate)
     studytime = str(header.StudyTime)
 
@@ -268,47 +322,19 @@ def earlsuv_analysis(data, results, config):
     phantom_vol = float(params["phantom_vol"]) # 9700
     results.addFloat('PhantomVolume',phantom_vol)
     
-    
-    ## Manual input parameters:8042/app/explorer.html#instance?uuid=42e9c86d-d7325651-ba3a40aa-08bf3871-1e768553
 
-    #1 READ parameters
-    datetimeformat = "%Y-%m-%dT%H:%M:%S"
-
-    acq_datetime = datetime.strptime(manualinput['acq_date']['val']+"T"+manualinput['acq_time']['val'],datetimeformat)
-    
-    print(manualinput)
-    dose_bg =  float(manualinput["dose_bg"]["val"])
-    #dose_bg = 71.0
-    dose_bg_datetime =  datetime.strptime( manualinput['dose_bg_date']['val']+"T"+manualinput['dose_bg_time']['val'],datetimeformat)
-    #dose_bg_datetime = datetime.strptime('2019-11-14T16:30',datetimeformat)
-    residual_dose_bg =  float(manualinput[ "residual_dose_bg"]["val"])
-    #residual_dose_bg = 0.0
-    residual_dose_bg_datetime =  datetime.strptime( manualinput['residual_dose_bg_date']['val']+"T"+manualinput['residual_dose_bg_time']['val'],datetimeformat)
-    #residual_dose_bg = datetime.strptime('2019-11-14T16:44',datetimeformat) 
-    
-
-    results.addFloat('Phantom dose',dose_bg)
-    results.addDateTime('Phantom dose DateTime', dose_bg_datetime) 
-
-    results.addFloat('Residual dose',residual_dose_bg)
-    results.addDateTime('Residual dose DateTime', residual_dose_bg_datetime) 
-
-    
-    #2 Calculate net background and stock activities
-    
-    print('Radiopharmaceutical Info')
-    ris = header.RadiopharmaceuticalInformationSequence[0]
-    half_life_secs = ris.RadionuclideHalfLife
-    isotope = ris.RadionuclideCodeSequence[0].CodeMeaning
-
-    results.addString('Isotope',isotope)
-    results.addFloat('Half life',half_life_secs)
+    #3 Calculate SUV
 
     #tref  = dose_bg_datetime
     tref = acq_datetime
+
+    print (half_life_secs,dose_bg,dose_bg_datetime)
+    bgd = earllib.Activity(dose_bg,dose_bg_datetime,half_life_secs)
+    bgr = earllib.Activity(residual_dose_bg,residual_dose_bg_datetime,half_life_secs)
+
     
-    bgd = earllib.Activity(dose_bg,scan_datetime,half_life_secs)
-    bgr = earllib.Activity(residual_dose_bg,scan_datetime,half_life_secs)
+    #bgd = earllib.Activity(dose_bg,scan_datetime,half_life_secs)
+    #bgr = earllib.Activity(residual_dose_bg,scan_datetime,half_life_secs)
 
     netbg = bgd.At(tref) - bgr.At(tref)
     admincon = netbg / phantom_vol   #MBQ/ml 
@@ -368,5 +394,6 @@ if __name__ == "__main__":
         elif name == 'earlsuv':
             earlsuv_analysis(data, results, config)
 
+            
             
     results.write()
