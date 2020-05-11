@@ -249,10 +249,10 @@ def earlsuv_analysis(data, results, config):
     #except AttributeError:
     #    info = 'qc' # selected subset of DICOM headers informative for QC testing
 
-    if True:
+    try:
         ge68suv = params['ge68suv']
-    #except:
-    #    ge68suv = False
+    except:
+        ge68suv = False
 
     print ('------',ge68suv)
         
