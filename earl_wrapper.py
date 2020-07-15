@@ -106,7 +106,7 @@ def earliq_analysis(data, results, config):
 
     try:
         info = params["info"]
-    except AttributeError:
+    except KeyError:
         info = 'qc' # selected subset of DICOM headers informative for QC testing
 
 
