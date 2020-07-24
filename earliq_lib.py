@@ -48,18 +48,17 @@ def loadData(dcmfiles):
     return data, pixsize
         
         
-def maskPlot(image, roi=None, overlay_type='contour', savefigname=None,**kwargs):
+def maskPlot(image, roi=None, overlay_type='contour', **kwargs):
     plt.imshow(image, cmap='gray', interpolation='nearest', **kwargs)
 
     if roi is not None:
         if overlay_type == 'contour':
-            plt.contour(roi, [0.5], colors='r', interpolation='nearest')
+            plt.contour(roi, [0.5], colors='r')
         elif overlay_type == 'area':
             roi_cmap = plt.cm.jet
             roi_cmap.set_under(alpha=0)
             plt.imshow(roi, cmap=roi_cmap, alpha=0.5, vmin=0.5, interpolation='nearest')
-        if savefigname is not None:
-            plt.savefig(savefigname)
+
                 
 class Activity(object):
     def __init__(self, activity, time, halflife_seconds):
@@ -170,8 +169,7 @@ def rotatePhantom(data, pixsize, show):
         
         data = rotate(data, angle, axes=axes, reshape=False)
         print ("Rotated by %.2f deg. about axis %i"%(angle, axis))
-        if show:
-            
+        if show:            
             plt.figure(figsize=(12,6))
             plt.subplot(121); plt.imshow(flat)
             plt.subplot(122); plt.imshow(rotate(flat.astype(float), angle, reshape=False))
@@ -368,7 +366,7 @@ def getSphereAngles(data, pixsize, y_center, x_center, bgr_mean, show):
         activities.append((mean_img[msk] - bgr_mean).sum())
     local_maxi = local_maxi[np.argsort(activities)].astype(float)
 
-    sphere_angle = [np.arctan2(xy[0]-y_center, xy[1]-x_center) / np.pi for xy in local_maxi]
+    sphere_angle = [np.arctan2(xy[0]-y_center, xy[1]-x_center) for xy in local_maxi]
     direction = np.sign(sphere_angle[1]-sphere_angle[0])
 
     sphere_angles = direction * np.arange(0, 6)*2*np.pi/6.0
@@ -384,7 +382,7 @@ def getSphereAngles(data, pixsize, y_center, x_center, bgr_mean, show):
             cy, cx = [y_center, x_center] + spheres_xy[i] / pixsize[1:]
             rz, ry, rx = 0.5 * SPHERES_MM[i] / pixsize
             mask[ getSphereMask2D(mean_img.shape, cy, cx, ry, rx) ] = 1
-        maskPlot(mean_img, mask, overlay_type='contour'); plt.show()
+        maskPlot(mean_img, mask, overlay_type='area'); plt.show()
 
     return sphere_angles
     
@@ -479,7 +477,7 @@ def analyzeLungInsert(insertdata, background, pixsize):
 '''
 
 
-def analyze_suv(data, pixsize, margin_mm, show,savefigname):
+def analyze_suv(data, pixsize, margin_mm, show, savefigname):
     data = np.copy(data)
     otsu_thres = skimage.filters.threshold_otsu(data)
     
@@ -495,11 +493,7 @@ def analyze_suv(data, pixsize, margin_mm, show,savefigname):
     plt.figure(figsize=(12,6))
     plt.subplot(121); maskPlot(data.mean(axis=0), mask.max(axis=0), overlay_type='area')
     plt.subplot(122); maskPlot(data.mean(axis=1), mask.max(axis=1), overlay_type='area')
-        
-    if show:
-        plt.show()
-    if savefigname:
-        plt.savefig(savefigname)
+    plt.savefig(savefigname)
 
     slicesuv = []
     slicedev = []
@@ -595,7 +589,9 @@ def analyze_iq(data, pixsize, zoomfactor, fit_individual, show,savefigname):
     if show:
         maskPlot(data.max(axis=1), labeled_mask.max(axis=1), vmin=0, vmax=bgr_mean+0.5*(data.max()-bgr_mean)); plt.show()
         maskPlot(data.max(axis=0), labeled_mask.max(axis=0), vmin=0, vmax=bgr_mean+0.5*(data.max()-bgr_mean)); plt.show()
+    
     if savefigname:
+        maskPlot(data.max(axis=0), labeled_mask.max(axis=0), vmin=0, vmax=bgr_mean+0.5*(data.max()-bgr_mean))
         plt.savefig(savefigname)
     
     return bgr_mean, np.array(means)

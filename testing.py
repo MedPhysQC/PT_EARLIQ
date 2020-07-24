@@ -1,6 +1,5 @@
 import os
-import pydicom as dcm
-from wad_qc.modulelibs import wadwrapper_lib
+import pydicom as dicom
 import numpy as np
 import matplotlib.pyplot as plt
 import earliq_lib as earllib
@@ -36,8 +35,9 @@ def earlsuv_analysis(dcm_folder):
     
     show = 1
     margin_mm = 10
+    savefigname = "earl_suv.png"
     
-    measured_concentration = earllib.analyze_suv(pixeldataIn, pixsize, margin_mm, show)
+    measured_concentration = earllib.analyze_suv(pixeldataIn, pixsize, margin_mm, show, savefigname)
     print(measured_concentration)
     
 
@@ -60,10 +60,10 @@ def earliq_analysis(dcm_folder):
     for fit_individual in [0, 1]:
         show=1
         zoomfactor = 4.
-        #fit_individual = 1
+        savefigname = "earl_iq_%i.png"%fit_individual
         pixeldataIn, pixsize = loadData(dcm_folder)
         
-        bgr_mean, sphere_means = earllib.analyze(pixeldataIn, pixsize, zoomfactor, fit_individual, show)
+        bgr_mean, sphere_means = earllib.analyze_iq(pixeldataIn, pixsize, zoomfactor, fit_individual, show, savefigname)
         
         RCs = sphere_means/bgr_mean/fill_ratio
         print(RCs)
@@ -74,10 +74,9 @@ def earliq_analysis(dcm_folder):
     plt.show()
     
 
-data = "Testdata/CALIBRATION QC/PETFDGSLACEARL20191114"
+data = "../Testdata/CALIBRATION QC/PETFDGSLACEARL20191114"
 earlsuv_analysis(data)
 
-exit()
 
-data = "Testdata/IMAGE QC/PETFDGSLACEARLIMAGEQC20191114"
+data = "../Testdata/IMAGE QC/PETFDGSLACEARLIMAGEQC20191114"
 earliq_analysis(data)
