@@ -20,6 +20,7 @@
 # 
 #
 # Changelog:
+#   20230905: new location for pydicom_series
 #   20190426: initial version
 
 from __future__ import print_function
@@ -31,8 +32,11 @@ __author__ = 'rvrooij,ddickerscheid,tdwit'
 import os
 # this will fail unless wad_qc is already installed
 from wad_qc.module import pyWADinput
-from wad_qc.modulelibs import pydicom_series as dcms
-
+try:
+    from wad_qc.modulelibs import pydicom_series as dcms
+except ImportError as e:
+    from wad_qc.modulelibs.wadwrapper_lib import pydicom_series as dcms
+    
 from wad_qc.modulelibs import wadwrapper_lib
 
 
