@@ -373,7 +373,7 @@ def earlsuv_analysis(data, results, config):
 
     
     results.addFloat('Administered concentration',admincon)
-    results.addFloat('Measured concentration',admincon)
+    results.addFloat('Measured concentration',measuredmean)
     results.addFloat('SUV',measuredmean/admincon)
 
     
